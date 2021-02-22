@@ -6,15 +6,17 @@ namespace Game
     {
         [SerializeField] private float _speed;
         [SerializeField] private float _rotationSpeed;
+        [SerializeField] private float _gunCooldown = 0.5f;
 
+        private float _currentCooldown;
         private Vector3 _direction;
         private float _rotationValue;
         private bool _isFiring = false;
-        private Transform _gun;
+        private Gun _gun;
 
         private void Awake()
         {
-            _gun = GetComponentInChildren<Transform>();
+            _gun = GetComponentInChildren<Gun>();
         }
 
         private void Update()
@@ -22,10 +24,22 @@ namespace Game
             _rotationValue = Input.GetAxis("Horizontal");
             _direction.z = Input.GetAxis("Vertical");
 
-            if (Input.GetAxis("Fire1") > 0)
+            if (_currentCooldown > 0)
+            {
+                _currentCooldown -= Time.deltaTime;
+            }
+            else if (_currentCooldown < 0)
+            {
+                _currentCooldown = 0;
+            }
+
+            if (Input.GetAxis("Fire1") > 0 && _currentCooldown == 0)
             {
                 _isFiring = true;
+                _currentCooldown = _gunCooldown;
             }
+
+            
         }
 
         private void FixedUpdate()
@@ -52,7 +66,7 @@ namespace Game
 
         private void Fire()
         {
-
+            _gun.Fire();
         }
     }
 }
